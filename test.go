@@ -1,1 +1,6 @@
-package homework
+package main
+
+func main() {
+
+	// test
+}
