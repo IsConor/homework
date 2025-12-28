@@ -1,9 +1,29 @@
 package homework01
 
+import "strconv"
+
 // 1. 只出现一次的数字
 // 给定一个非空整数数组，除了某个元素只出现一次以外，其余每个元素均出现两次。找出那个只出现了一次的元素。
 func SingleNumber(nums []int) int {
 	// TODO: implement
+	// 定义一个map记录每个值出现的次数
+	tempMap := make(map[int]int)
+	// 遍历参数切片
+	for _, n := range nums {
+		// 如果不在map中，就在map中新建并记录1次
+		if _, ok := tempMap[n]; !ok {
+			tempMap[n] = 1
+		} else {
+			// 如果在map中，就map[n] + 1
+			tempMap[n] += 1
+		}
+	}
+	// 找到只出现1次的值
+	for key, value := range tempMap {
+		if value == 1 {
+			return key
+		}
+	}
 	return 0
 }
 
@@ -11,28 +31,91 @@ func SingleNumber(nums []int) int {
 // 判断一个整数是否是回文数
 func IsPalindrome(x int) bool {
 	// TODO: implement
-	return false
+	if x < 0 {
+		return false
+	}
+	if x > 0 && x < 10 {
+		return true
+	}
+	str := strconv.Itoa(x)
+	left, right := 0, len(str)-1
+	for left < right {
+		if str[left] != str[right] {
+			return false
+		}
+		left++
+		right--
+	}
+
+	return true
 }
 
 // 3. 有效的括号
 // 给定一个只包括 '(', ')', '{', '}', '[', ']' 的字符串，判断字符串是否有效
 func IsValid(s string) bool {
 	// TODO: implement
-	return false
+	stack := []rune{}
+
+	m := map[rune]rune{
+		')': '(',
+		'}': '{',
+		']': '[',
+	}
+	for _, c := range s {
+		if c == '(' || c == '[' || c == '{' {
+			stack = append(stack, c)
+		} else {
+			// 此时的c是: ')' 、 '}' 、']'
+			if len(stack) == 0 || stack[len(stack)-1] != m[c] {
+				return false
+			}
+			stack = stack[:len(stack)-1]
+		}
+	}
+	return len(stack) == 0
 }
 
 // 4. 最长公共前缀
 // 查找字符串数组中的最长公共前缀
 func LongestCommonPrefix(strs []string) string {
 	// TODO: implement
-	return ""
+	if len(strs) == 0 {
+		return ""
+	}
+
+	for i := 0; i < len(strs[0]); i++ {
+		// char: 基准字符串的每一个字符
+		char := strs[0][i]
+		//检查其他所有字符串的该位置是否相同
+		for j := 1; j < len(strs); j++ {
+			if i >= len(strs[j]) || strs[j][i] != char {
+				return strs[0][:i]
+			}
+		}
+	}
+	// 所有字符串都匹配，返回第一个字符串，就是它本身
+	return strs[0]
 }
 
 // 5. 加一
 // 给定一个由整数组成的非空数组所表示的非负整数，在该数的基础上加一
 func PlusOne(digits []int) []int {
 	// TODO: implement
-	return nil
+	// 从最后一位（最低位）开始遍历
+	for i := len(digits) - 1; i >= 0; i-- {
+		// 当前位加1
+		digits[i]++
+		// 取余10，判断是否有进位：
+		// - 若结果不为0，说明无进位，直接返回
+		// - 若结果为0，说明有进位，继续向前遍历
+		digits[i] %= 10
+		if digits[i] != 0 {
+			return digits
+		}
+	}
+
+	// 走到这里说明所有位都进位（如[9,9]→[0,0]），需要新增最高位1
+	return append([]int{1}, digits...)
 }
 
 // 6. 删除有序数组中的重复项
