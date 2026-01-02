@@ -1,6 +1,9 @@
 package homework01
 
-import "strconv"
+import (
+	"sort"
+	"strconv"
+)
 
 // 1. 只出现一次的数字
 // 给定一个非空整数数组，除了某个元素只出现一次以外，其余每个元素均出现两次。找出那个只出现了一次的元素。
@@ -123,7 +126,24 @@ func PlusOne(digits []int) []int {
 // 不要使用额外的数组空间，你必须在原地修改输入数组并在使用 O(1) 额外空间的条件下完成。
 func RemoveDuplicates(nums []int) int {
 	// TODO: implement
-	return 0
+	// 处理空切片边界情况
+	if len(nums) == 0 {
+		return 0
+	}
+
+	// 慢指针初始化为0（第一个元素默认唯一）
+	slow := 0
+	// 快指针从1开始遍历
+	for fast := 1; fast < len(nums); fast++ {
+		// 找到与慢指针位置不同的元素（新的唯一元素）
+		if nums[fast] != nums[slow] {
+			slow++                  // 慢指针右移，指向新唯一元素的位置
+			nums[slow] = nums[fast] // 覆盖慢指针位置的值
+		}
+	}
+	// 唯一元素长度 = 慢指针索引 + 1
+	return slow + 1
+
 }
 
 // 7. 合并区间
@@ -131,12 +151,51 @@ func RemoveDuplicates(nums []int) int {
 // 请你合并所有重叠的区间，并返回一个不重叠的区间数组，该数组需恰好覆盖输入中的所有区间。
 func Merge(intervals [][]int) [][]int {
 	// TODO: implement
-	return nil
+	// 处理空输入的边界情况
+	if len(intervals) == 0 {
+		return nil
+	}
+
+	// 步骤1：按区间起始值升序排序
+	sort.Slice(intervals, func(i, j int) bool {
+		return intervals[i][0] < intervals[j][0]
+	})
+
+	// 步骤2：初始化结果集，先加入第一个区间
+	merged := [][]int{intervals[0]}
+
+	// 步骤3：遍历剩余区间，逐个合并
+	for i := 1; i < len(intervals); i++ {
+		// 获取结果集最后一个区间
+		last := merged[len(merged)-1]
+		// 当前遍历的区间
+		curr := intervals[i]
+
+		// 情况1：当前区间与最后一个区间重叠（当前区间的起始 <= 最后一个区间的结束）
+		if curr[0] <= last[1] {
+			// 合并区间：更新最后一个区间的结束值为两者的最大值
+			last[1] = max(last[1], curr[1])
+		} else {
+			// 情况2：无重叠，直接加入结果集
+			merged = append(merged, curr)
+		}
+	}
+
+	return merged
 }
 
 // 8. 两数之和
 // 给定一个整数数组 nums 和一个目标值 target，请你在该数组中找出和为目标值的那两个整数
 func TwoSum(nums []int, target int) []int {
 	// TODO: implement
-	return nil
+	last := 0
+	fast := 1
+	for ; fast < len(nums); fast++ {
+		if nums[last]+nums[fast] == target {
+			break
+		}
+		last++
+	}
+
+	return []int{last, fast}
 }
